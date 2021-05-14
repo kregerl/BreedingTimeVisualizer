@@ -7,6 +7,7 @@ import com.loucaskreger.breedingtimevisualizer.networking.Networking;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 public class EntityPositionRequestPacket {
@@ -34,8 +35,9 @@ public class EntityPositionRequestPacket {
 	public void processRequest(Supplier<NetworkEvent.Context> context) {
 		Entity entity = context.get().getSender().getCommandSenderWorld().getEntity(this.id);
 		if (entity instanceof AnimalEntity) {
-			Networking.INSTANCE
-					.sendToServer(new EntityPositionResponsePacket(entity.getId(), ((AnimalEntity) entity).getAge()));
+			Networking.INSTANCE.sendTo(
+					new EntityPositionResponsePacket(entity.getId(), ((AnimalEntity) entity).getAge()),
+					context.get().getSender().connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
 		}
 	}
 }
