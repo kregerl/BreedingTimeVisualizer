@@ -1,0 +1,30 @@
+	modLoader="javafml"
+	loaderVersion="[36,)"
+	license="MIT"
+	
+[[mods]]
+	modId="breedingtimevisualizer"
+	version="1.0"
+	displayName="Breeding Time Visualizer"
+	displayURL="https://www.curseforge.com/minecraft/mc-mods/breeding-time-visualizer"
+	issueTrackerURL="https://github.com/kregerl/BreedingTimeVisualizer/issues"
+	logoFile="BreedingTimeVisualizerLogo.png"
+	credits=""
+	authors="AreUThreateningMe"
+	description='''
+Users can see how close an animal is to being able to breed again. Colors will fade from red to green with animals that can breed being green.
+'''
+
+[[dependencies.breedingtimevisualizer]]
+    modId="forge"
+    mandatory=true
+    versionRange="[36,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.breedingtimevisualizer]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16.5]"
+    ordering="AFTER"
+    side="BOTH"
