@@ -1,15 +1,19 @@
 package com.loucaskreger.breedingtimevisualizer.client;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_B;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import com.loucaskreger.breedingtimevisualizer.BreedingTimeVisualizer;
 import com.loucaskreger.breedingtimevisualizer.config.ClientConfig;
+import com.loucaskreger.breedingtimevisualizer.config.Config;
 import com.loucaskreger.breedingtimevisualizer.networking.Networking;
 import com.loucaskreger.breedingtimevisualizer.networking.packet.EntityPositionRequestPacket;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.settings.KeyBinding;
@@ -23,6 +27,7 @@ import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.config.ModConfig;
 
 @EventBusSubscriber(modid = BreedingTimeVisualizer.MOD_ID, value = Dist.CLIENT)
 public class EventSubscriber {
@@ -33,6 +38,14 @@ public class EventSubscriber {
 	public static final KeyBinding key = new KeyBinding(BreedingTimeVisualizer.MOD_ID + ".key.breedingtimer",
 			GLFW_KEY_B, BreedingTimeVisualizer.MOD_ID + ".key.categories");
 	private static final Minecraft mc = Minecraft.getInstance();
+	private static boolean toggled = false;
+
+	@SubscribeEvent
+	public static void onModConfigEvent(final ModConfig.ModConfigEvent configEvent) {
+		if (configEvent.getConfig().getSpec() == Config.CLIENT_SPEC) {
+			Config.bakeConfig();
+		}
+	}
 
 	@SubscribeEvent
 	public static void onRenderLiving(final RenderLivingEvent.Pre<LivingEntity, EntityModel<LivingEntity>> event) {
@@ -53,7 +66,6 @@ public class EventSubscriber {
 		}
 	}
 
-	private static boolean toggled = false;
 
 	@SubscribeEvent
 	public static void onClientTick(final ClientTickEvent event) {
@@ -68,7 +80,7 @@ public class EventSubscriber {
 				removeFromGlowTeam();
 
 				entities = mc.level.getLoadedEntitiesOfClass(AnimalEntity.class,
-						mc.player.getBoundingBox().inflate(5.0D));
+						mc.player.getBoundingBox().inflate(Math.min(25.0D, ClientConfig.viewRange.get())));
 				if (!entities.isEmpty()) {
 					entities.forEach(entity -> Networking.INSTANCE
 							.sendToServer(new EntityPositionRequestPacket(entity.getId())));
@@ -111,7 +123,9 @@ public class EventSubscriber {
 				scoreboard.removePlayerFromTeam(animal.getUUID().toString(), team);
 			}
 			animal.setGlowing(false);
-			if (!(mc.level.getLoadedEntitiesOfClass(AnimalEntity.class, mc.player.getBoundingBox().inflate(5.0D))
+			if (!(mc.level
+					.getLoadedEntitiesOfClass(AnimalEntity.class,
+							mc.player.getBoundingBox().inflate(Math.max(25.0D, ClientConfig.viewRange.get())))
 					.contains(animal))) {
 				it.remove();
 				entityBreedingTimers.remove(animal.getId());

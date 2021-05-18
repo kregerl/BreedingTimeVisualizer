@@ -1,14 +1,12 @@
 package com.loucaskreger.breedingtimevisualizer.mixin;
 
 import java.awt.Color;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
 import com.loucaskreger.breedingtimevisualizer.client.EventSubscriber;
-
+import com.loucaskreger.breedingtimevisualizer.config.ClientConfig;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.scoreboard.Team;
@@ -18,8 +16,8 @@ import net.minecraft.util.math.MathHelper;
 public class MixinEntity {
 
 	private static final float MAX_IN_LOVE = 6000f;
-	private Color red = new Color(16733525);
-	private Color green = new Color(5635925);
+	private Color start = new Color(Integer.parseInt(ClientConfig.unableToBreedColor.get(), 16)); // 16733525
+	private Color end = new Color(Integer.parseInt(ClientConfig.ableToBreedColor.get(), 16)); // 5635925
 
 	@Inject(method = "getTeamColor", at = @At("HEAD"), cancellable = true)
 	private void getTeamColor(CallbackInfoReturnable<Integer> ci) {
@@ -33,9 +31,9 @@ public class MixinEntity {
 				if (team.getName().equals(EventSubscriber.TEAM_NAME)) {
 					float percent = (float) EventSubscriber.entityBreedingTimers.get(animal.getId()) / MAX_IN_LOVE;
 					if (percent < 0) {
-						ci.setReturnValue(red.getRGB());
+						ci.setReturnValue(start.getRGB());
 					} else {
-						ci.setReturnValue(this.lerpColor(green, red, percent).getRGB());
+						ci.setReturnValue(this.lerpColor(end, start, percent).getRGB());
 					}
 				}
 			}
@@ -48,7 +46,6 @@ public class MixinEntity {
 		r = (int) MathHelper.lerp(f, start.getRed(), end.getRed());
 		g = (int) MathHelper.lerp(f, start.getGreen(), end.getGreen());
 		b = (int) MathHelper.lerp(f, start.getBlue(), end.getBlue());
-//		System.out.printf("R: %d, G: %d, B: %d%n", r, g, b);
 		Color c = new Color(r, g, b);
 		return c;
 	}

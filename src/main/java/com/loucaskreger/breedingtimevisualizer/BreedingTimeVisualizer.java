@@ -23,6 +23,7 @@ public class BreedingTimeVisualizer {
 	public BreedingTimeVisualizer() {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setupCommon);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setupClient);
+		ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
 		Networking.registerMessages();
 	}
 
@@ -30,7 +31,6 @@ public class BreedingTimeVisualizer {
 	}
 
 	private void setupClient(final FMLClientSetupEvent event) {
-		ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
 		ClientRegistry.registerKeyBinding(EventSubscriber.key);
 	}
 
